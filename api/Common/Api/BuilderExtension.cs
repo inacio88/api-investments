@@ -8,8 +8,7 @@ namespace api.Common.Api
     {
         public static void AddConfiguration(this WebApplicationBuilder builder)
         {
-            Configuration.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                                            ?? string.Empty;
+            Configuration.ConnectionString = builder.Configuration.GetValue<string>("conexao") ?? string.Empty;
 
         }
 
