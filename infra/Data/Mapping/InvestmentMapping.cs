@@ -2,7 +2,7 @@ using core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace api.Data.Mapping
+namespace infra.Data.Mapping
 {
     public class InvestmentMapping : IEntityTypeConfiguration<Investment>
     {
