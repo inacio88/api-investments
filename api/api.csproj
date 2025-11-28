@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../core/core.csproj" />
+    <ProjectReference Include="../infra/infra.csproj" />
   </ItemGroup>
 
 </Project>
