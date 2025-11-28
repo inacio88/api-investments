@@ -2,6 +2,7 @@ using api.Common.Api;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddControllers();
 builder.AddConfiguration();
 builder.AddSecurity();
 builder.AddDataContexts();
@@ -20,6 +21,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.MapIdentityApi<IdentityUser>();
+
+app.MapGroup("/identity")
+   .MapIdentityApi<IdentityUser>();
+
+app.MapControllers();
 
 app.Run();
