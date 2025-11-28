@@ -11,8 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
-        <PackageReference Include="Microsoft.entityFrameWorkCore.Design" Version="9.0.1">
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
+    <PackageReference Include="Microsoft.entityFrameWorkCore.Design" Version="9.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
