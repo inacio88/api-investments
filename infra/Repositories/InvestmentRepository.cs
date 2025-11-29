@@ -16,9 +16,6 @@ namespace infra.Repositories
 
         public async Task AddAsync(Investment investment)
         {
-            if (investment == null)
-                throw new ArgumentNullException(nameof(investment));
-
             _context.Investments.Add(investment);
             await _context.SaveChangesAsync();
         }
@@ -65,9 +62,6 @@ namespace infra.Repositories
 
         public async Task UpdateAsync(Investment investment)
         {
-            if (investment == null)
-                throw new ArgumentNullException(nameof(investment));
-
             _context.Investments.Update(investment);
             await _context.SaveChangesAsync();
         }

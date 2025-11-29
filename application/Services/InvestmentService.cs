@@ -2,6 +2,7 @@ using core.Entities;
 using core.Repositories;
 using core.Services;
 using application.DTOs;
+using common.TypeExtentions;
 
 namespace application.Services;
 
@@ -30,7 +31,7 @@ public class InvestmentService : IInvestmentService
             Id = Guid.NewGuid(),
             OwnerId = input.OwnerId,
             InitialAmount = input.Amount,
-            CreationDate = input.CreationDate
+            CreationDate = input.CreationDate.ToUniversalTime()
         };
 
         await _repository.AddAsync(investment);
@@ -39,16 +40,14 @@ public class InvestmentService : IInvestmentService
 
     public async Task WithdrawInvestmentAsync(Guid investmentId, DateTime withdrawalDate)
     {
-        var investment = await _repository.GetByIdAsync(investmentId);
-        if (investment == null)
-            throw new InvalidOperationException("Investimento não encontrado.");
-
+        withdrawalDate = withdrawalDate.ToUniversalTime();
+        var investment = await _repository.GetByIdAsync(investmentId) ?? throw new InvalidOperationException("Investimento não encontrado.");
         if (investment.IsWithdrawn)
             throw new InvalidOperationException("Investimento já foi resgatado.");
 
-        if (withdrawalDate < investment.CreationDate)
+        if (withdrawalDate.IsDateLessThan(investment.CreationDate))
             throw new ArgumentException("A data de resgate não pode ser anterior à data de criação.");
-        if (withdrawalDate > DateTime.Today)
+        if (withdrawalDate.IsDateGreaterThan(DateTime.Today))
             throw new ArgumentException("A data de resgate não pode ser futura.");
 
         investment.WithdrawalDate = withdrawalDate;
@@ -70,9 +69,11 @@ public class InvestmentService : IInvestmentService
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var investments = await _repository.GetByOwnerIdAsync(ownerId, page, pageSize);
-        var totalCount = await _repository.CountByOwnerIdAsync(ownerId);
-
+        var investmentsTask = _repository.GetByOwnerIdAsync(ownerId, page, pageSize);
+        var totalCountTask = _repository.CountByOwnerIdAsync(ownerId);
+        await Task.WhenAll(investmentsTask, totalCountTask);
+        var investments = investmentsTask.Result;
+        var totalCount = totalCountTask.Result;
         var items = new List<InvestmentDto>();
         foreach (var investment in investments)
         {
@@ -94,15 +95,15 @@ public class InvestmentService : IInvestmentService
             throw new ArgumentException("OwnerId é obrigatório.");
         if (amount <= 0)
             throw new ArgumentException("O valor do investimento deve ser maior que zero.");
-        if (creationDate > DateTime.Today)
+        if (creationDate.IsDateGreaterThan(DateTime.Today))
             throw new ArgumentException("A data de criação não pode ser futura.");
     }
 
     private InvestmentDto MapToDtoAsync(Investment investment)
     {
         DateTime calculationDate = investment.IsWithdrawn
-            ? investment.WithdrawalDate!.Value
-            : DateTime.Today;
+            ? investment.WithdrawalDate!.Value.ToUniversalTime()
+            : DateTime.Today.ToUniversalTime();
 
         decimal gains = _gainService.CalculateGains(
             investment.InitialAmount,

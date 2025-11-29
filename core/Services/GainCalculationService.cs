@@ -19,7 +19,7 @@ namespace core.Services
             return Math.Round(gains, 2);
         }
 
-        private int GetFullMonthsBetween(DateTime start, DateTime end)
+        private static int GetFullMonthsBetween(DateTime start, DateTime end)
         {
             int months = (end.Year - start.Year) * 12 + (end.Month - start.Month);
             if (end.Day < start.Day)
