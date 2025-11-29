@@ -1,4 +1,8 @@
+using application.Services;
+using core.Repositories;
+using core.Services;
 using infra.Data;
+using infra.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -69,7 +73,11 @@ namespace api.Common.Api
 
         public static void AddServices(this WebApplicationBuilder builder)
         {
-
+            builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
+            
+            builder.Services.AddScoped<IInvestmentService, InvestmentService>();
+            builder.Services.AddScoped<IGainCalculationService, GainCalculationService>();
+            builder.Services.AddScoped<ITaxCalculationService, TaxCalculationService>();
         }
     }
 }
