@@ -1,5 +1,3 @@
-using System;
-
 namespace common.TypeExtentions
 {
     public static class DateTimeExtensions
@@ -11,7 +9,7 @@ namespace common.TypeExtentions
 
         public static bool IsDateLessThan(this DateTime leftSide, DateTime rightSide)
         {
-            return leftSide.Date > rightSide.Date;
+            return leftSide.Date < rightSide.Date;
         }
     }
 }

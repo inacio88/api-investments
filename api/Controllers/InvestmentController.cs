@@ -52,7 +52,10 @@ namespace api.Controllers
         public async Task<ActionResult<InvestmentDto>> GetInvestmentById(Guid id)
         {
             var userId = User.UserId();
-            var investment = await _investmentService.GetInvestmentByIdAsync(id);
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("Usuário não autenticado.");
+
+            var investment = await _investmentService.GetInvestmentByIdAsync(new core.Filters.InvestmentFilter(userId) { Id = id });
             if (investment == null)
                 return NotFound();
 
@@ -70,7 +73,7 @@ namespace api.Controllers
             if (string.IsNullOrEmpty(userId))
                 return BadRequest("Usuário não autenticado.");
 
-            var result = await _investmentService.GetInvestmentsByOwnerAsync(userId, page, pageSize);
+            var result = await _investmentService.GetInvestmentsByOwnerAsync(new core.Filters.InvestmentFilter(userId) { Page = page, PageSize = pageSize });
             return Ok(result);
         }
 
@@ -82,10 +85,12 @@ namespace api.Controllers
         public async Task<IActionResult> WithdrawInvestment(Guid id, [FromBody] WithdrawInvestmentInput input)
         {
             var userId = User.UserId();
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("Usuário não autenticado.");
 
             try
             {
-                await _investmentService.WithdrawInvestmentAsync(id, input.WithdrawalDate);
+                await _investmentService.WithdrawInvestmentAsync(id, userId, input.WithdrawalDate);
                 return NoContent();
             }
             catch (InvalidOperationException ex)

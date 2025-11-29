@@ -1,4 +1,5 @@
 using core.Entities;
+using core.Filters;
 using core.Repositories;
 using infra.Data;
 using Microsoft.EntityFrameworkCore;
@@ -20,44 +21,40 @@ namespace infra.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> ExistsAsync(Guid id)
+        public async Task<bool> ExistsAsync(InvestmentFilter filter)
         {
-            return await _context.Investments.AnyAsync(e => e.Id == id);
+            return await _context.Investments.AnyAsync(e => e.Id == filter.Id && e.OwnerId == filter.OwnerId);
         }
 
-        public async Task<Investment?> GetByIdAsync(Guid id)
+        public async Task<Investment?> GetByIdAsync(InvestmentFilter filter)
         {
             return await _context.Investments
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.Id == filter.Id && e.OwnerId == filter.OwnerId);
         }
 
-        public async Task<IEnumerable<Investment>> GetByOwnerIdAsync(string ownerId, int page, int pageSize)
+        public async Task<IEnumerable<Investment>> GetByOwnerIdAsync(InvestmentFilter filter)
         {
-            if (string.IsNullOrWhiteSpace(ownerId))
-                throw new ArgumentException("OwnerId não pode ser nulo ou vazio.", nameof(ownerId));
-
-            if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 10;
-            if (pageSize > 100) pageSize = 100;
+            if (string.IsNullOrWhiteSpace(filter.OwnerId))
+                throw new ArgumentException("OwnerId não pode ser nulo ou vazio.");
 
             return await _context.Investments
                 .AsNoTracking()
-                .Where(e => e.OwnerId == ownerId)
+                .Where(e => e.OwnerId == filter.OwnerId)
                 .OrderBy(e => e.CreationDate)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip(filter.Skip)
+                .Take(filter.PageSizeClamped)
                 .ToListAsync();
         }
 
-        public async Task<long> CountByOwnerIdAsync(string ownerId)
+        public async Task<long> CountByOwnerIdAsync(InvestmentFilter filter)
         {
-            if (string.IsNullOrWhiteSpace(ownerId))
-                throw new ArgumentException("OwnerId não pode ser nulo ou vazio.", nameof(ownerId));
+            if (string.IsNullOrWhiteSpace(filter.OwnerId))
+                throw new ArgumentException("OwnerId não pode ser nulo ou vazio.");
 
             return await _context.Investments
                 .AsNoTracking()
-                .LongCountAsync(e => e.OwnerId == ownerId);
+                .LongCountAsync(e => e.OwnerId == filter.OwnerId);
         }
 
         public async Task UpdateAsync(Investment investment)

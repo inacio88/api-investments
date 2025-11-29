@@ -3,6 +3,7 @@ using core.Repositories;
 using core.Services;
 using application.DTOs;
 using common.TypeExtentions;
+using core.Filters;
 
 namespace application.Services;
 
@@ -38,10 +39,10 @@ public class InvestmentService : IInvestmentService
         return MapToDtoAsync(investment);
     }
 
-    public async Task WithdrawInvestmentAsync(Guid investmentId, DateTime withdrawalDate)
+    public async Task WithdrawInvestmentAsync(Guid investmentId, string ownerId, DateTime withdrawalDate)
     {
         withdrawalDate = withdrawalDate.ToUniversalTime();
-        var investment = await _repository.GetByIdAsync(investmentId) ?? throw new InvalidOperationException("Investimento não encontrado.");
+        var investment = await _repository.GetByIdAsync(new(ownerId) { Id = investmentId }) ?? throw new InvalidOperationException("Investimento não encontrado.");
         if (investment.IsWithdrawn)
             throw new InvalidOperationException("Investimento já foi resgatado.");
 
@@ -54,24 +55,22 @@ public class InvestmentService : IInvestmentService
         await _repository.UpdateAsync(investment);
     }
 
-    public async Task<InvestmentDto?> GetInvestmentByIdAsync(Guid id)
+    public async Task<InvestmentDto?> GetInvestmentByIdAsync(InvestmentFilter filter)
     {
-        var investment = await _repository.GetByIdAsync(id);
+        var investment = await _repository.GetByIdAsync(filter);
         return investment == null ? null : MapToDtoAsync(investment);
     }
 
-    public async Task<PaginatedResult<InvestmentDto>> GetInvestmentsByOwnerAsync(string ownerId, int page, int pageSize)
+    public async Task<PaginatedResult<InvestmentDto>> GetInvestmentsByOwnerAsync(InvestmentFilter filter)
     {
-        if (string.IsNullOrWhiteSpace(ownerId))
+        if (string.IsNullOrWhiteSpace(filter.OwnerId))
             throw new ArgumentException("OwnerId é obrigatório.");
 
+        var investmentsTask = _repository.GetByOwnerIdAsync(filter);
+        var totalCountTask = _repository.CountByOwnerIdAsync(filter);
 
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
-
-        var investmentsTask = _repository.GetByOwnerIdAsync(ownerId, page, pageSize);
-        var totalCountTask = _repository.CountByOwnerIdAsync(ownerId);
         await Task.WhenAll(investmentsTask, totalCountTask);
+
         var investments = investmentsTask.Result;
         var totalCount = totalCountTask.Result;
         var items = new List<InvestmentDto>();
@@ -83,8 +82,8 @@ public class InvestmentService : IInvestmentService
         return new PaginatedResult<InvestmentDto>
         {
             Items = items,
-            PageNumber = page,
-            PageSize = pageSize,
+            PageNumber = filter.Page,
+            PageSize = filter.PageSizeClamped,
             TotalCount = totalCount
         };
     }
