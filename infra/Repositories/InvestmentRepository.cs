@@ -53,6 +53,16 @@ namespace infra.Repositories
                 .ToListAsync();
         }
 
+        public async Task<long> CountByOwnerIdAsync(string ownerId)
+        {
+            if (string.IsNullOrWhiteSpace(ownerId))
+                throw new ArgumentException("OwnerId não pode ser nulo ou vazio.", nameof(ownerId));
+
+            return await _context.Investments
+                .AsNoTracking()
+                .LongCountAsync(e => e.OwnerId == ownerId);
+        }
+
         public async Task UpdateAsync(Investment investment)
         {
             if (investment == null)
