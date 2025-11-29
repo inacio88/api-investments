@@ -1,12 +1,13 @@
+using application.DTOs;
 using core.Entities;
 
 namespace application.Services
 {
     public interface IInvestmentService
     {
-        Task<Investment> CreateInvestmentAsync(string ownerId, decimal amount, DateTime creationDate);
+        Task<InvestmentDto> CreateInvestmentAsync(CreateInvestmentInput input);
         Task WithdrawInvestmentAsync(Guid investmentId, DateTime withdrawalDate);
-        Task<Investment?> GetInvestmentByIdAsync(Guid id);
-        Task<List<Investment>> GetInvestmentsByOwnerAsync(string ownerId, int page, int pageSize);
+        Task<InvestmentDto?> GetInvestmentByIdAsync(Guid id);
+        Task<PaginatedResult<InvestmentDto>> GetInvestmentsByOwnerAsync(string ownerId, int page, int pageSize);
     }
 }
