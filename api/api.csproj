@@ -19,8 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../core/core.csproj" />
-    <ProjectReference Include="../infra/infra.csproj" />
+    <ProjectReference Include="../application/application.csproj" />
   </ItemGroup>
 
 </Project>
