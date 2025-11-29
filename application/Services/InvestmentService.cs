@@ -34,7 +34,7 @@ public class InvestmentService : IInvestmentService
         };
 
         await _repository.AddAsync(investment);
-        return await MapToDtoAsync(investment);
+        return MapToDtoAsync(investment);
     }
 
     public async Task WithdrawInvestmentAsync(Guid investmentId, DateTime withdrawalDate)
@@ -58,7 +58,7 @@ public class InvestmentService : IInvestmentService
     public async Task<InvestmentDto?> GetInvestmentByIdAsync(Guid id)
     {
         var investment = await _repository.GetByIdAsync(id);
-        return investment == null ? null : await MapToDtoAsync(investment);
+        return investment == null ? null : MapToDtoAsync(investment);
     }
 
     public async Task<PaginatedResult<InvestmentDto>> GetInvestmentsByOwnerAsync(string ownerId, int page, int pageSize)
@@ -66,7 +66,7 @@ public class InvestmentService : IInvestmentService
         if (string.IsNullOrWhiteSpace(ownerId))
             throw new ArgumentException("OwnerId é obrigatório.");
 
-        
+
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
@@ -76,7 +76,7 @@ public class InvestmentService : IInvestmentService
         var items = new List<InvestmentDto>();
         foreach (var investment in investments)
         {
-            items.Add(await MapToDtoAsync(investment));
+            items.Add(MapToDtoAsync(investment));
         }
 
         return new PaginatedResult<InvestmentDto>
@@ -98,7 +98,7 @@ public class InvestmentService : IInvestmentService
             throw new ArgumentException("A data de criação não pode ser futura.");
     }
 
-    private async Task<InvestmentDto> MapToDtoAsync(Investment investment)
+    private InvestmentDto MapToDtoAsync(Investment investment)
     {
         DateTime calculationDate = investment.IsWithdrawn
             ? investment.WithdrawalDate!.Value

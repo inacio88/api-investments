@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using application.DTOs;
 using application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -18,16 +20,23 @@ namespace api.Controllers
         /// <summary>
         /// Creates a new investment.
         /// </summary>
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<InvestmentDto>> CreateInvestment([FromBody] CreateInvestmentInput input)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("Usuário não autenticado.");
+
+            input.OwnerId = userId;
+
             try
             {
                 var investment = await _investmentService.CreateInvestmentAsync(input);
-                return CreatedAtAction(nameof(GetInvestmentById), new { id = investment.Id }, investment);
+                return Ok(investment);
             }
             catch (ArgumentException ex)
             {
@@ -35,9 +44,10 @@ namespace api.Controllers
             }
         }
 
-        /// <summary>
-        /// Retrieves an investment by ID.
-        /// </summary>
+        // /// <summary>
+        // /// Retrieves an investment by ID.
+        // /// </summary>
+        [Authorize]
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<InvestmentDto>> GetInvestmentById(Guid id)
         {
@@ -51,22 +61,24 @@ namespace api.Controllers
         /// <summary>
         /// Lists all investments for a given owner (with pagination).
         /// </summary>
-        [HttpGet("owner/{ownerId}")]
+        [Authorize]
+        [HttpGet("owner")]
         public async Task<ActionResult<PaginatedResult<InvestmentDto>>> GetInvestmentsByOwner(
-            string ownerId,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
-            if (string.IsNullOrWhiteSpace(ownerId))
-                return BadRequest("OwnerId is required.");
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("Usuário não autenticado.");
 
-            var result = await _investmentService.GetInvestmentsByOwnerAsync(ownerId, page, pageSize);
+            var result = await _investmentService.GetInvestmentsByOwnerAsync(userId, page, pageSize);
             return Ok(result);
         }
 
         /// <summary>
         /// Withdraws an investment (full withdrawal only).
         /// </summary>
+        [Authorize]
         [HttpPost("{id:guid}/withdraw")]
         public async Task<IActionResult> WithdrawInvestment(Guid id, [FromBody] WithdrawInvestmentInput input)
         {
