@@ -1,8 +1,8 @@
-using System.Security.Claims;
 using application.DTOs;
 using application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using common.TypeExtentions;
 
 namespace api.Controllers
 {
@@ -27,11 +27,11 @@ namespace api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.UserId();
             if (string.IsNullOrEmpty(userId))
                 return BadRequest("Usuário não autenticado.");
 
-            input.OwnerId = userId;
+            input.SetOwner(userId);
 
             try
             {
@@ -51,6 +51,7 @@ namespace api.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<InvestmentDto>> GetInvestmentById(Guid id)
         {
+            var userId = User.UserId();
             var investment = await _investmentService.GetInvestmentByIdAsync(id);
             if (investment == null)
                 return NotFound();
@@ -63,11 +64,9 @@ namespace api.Controllers
         /// </summary>
         [Authorize]
         [HttpGet("owner")]
-        public async Task<ActionResult<PaginatedResult<InvestmentDto>>> GetInvestmentsByOwner(
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PaginatedResult<InvestmentDto>>> GetInvestmentsByOwner([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.UserId();
             if (string.IsNullOrEmpty(userId))
                 return BadRequest("Usuário não autenticado.");
 
@@ -82,8 +81,7 @@ namespace api.Controllers
         [HttpPost("{id:guid}/withdraw")]
         public async Task<IActionResult> WithdrawInvestment(Guid id, [FromBody] WithdrawInvestmentInput input)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var userId = User.UserId();
 
             try
             {
