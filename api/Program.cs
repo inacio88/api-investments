@@ -22,7 +22,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGroup("/identity")
+app.MapGroup("/api/Identity")
    .MapIdentityApi<IdentityUser>();
 
 app.MapControllers();
