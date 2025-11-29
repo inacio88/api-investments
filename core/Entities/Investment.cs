@@ -3,7 +3,7 @@ namespace core.Entities
     public class Investment
     {
         public Guid Id { get; set; }
-        public string OwnerId { get; set; }
+        public string OwnerId { get; set; } = string.Empty;
         public DateTime CreationDate { get; set; }
         public decimal InitialAmount { get; set; }
         public DateTime? WithdrawalDate { get; set; }
