@@ -12,10 +12,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
-        <PackageReference Include="Microsoft.entityFrameWorkCore.Design" Version="9.0.1">
+    <PackageReference Include="Microsoft.entityFrameWorkCore.Design" Version="9.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.3.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,5 +24,10 @@
     <ProjectReference Include="../core/core.csproj" />
     <ProjectReference Include="../infra/infra.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
 
 </Project>
