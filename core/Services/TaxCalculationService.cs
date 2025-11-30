@@ -7,7 +7,7 @@ namespace core.Services
             if (gain <= 0)
                 return 0;
 
-            var ageInYears = (withdrawalDate - creationDate).TotalDays / 365.25;
+            var ageInYears = Math.Round((withdrawalDate - creationDate).TotalDays / 365.25);
 
             decimal taxRate = ageInYears switch
             {
