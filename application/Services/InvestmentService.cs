@@ -66,13 +66,9 @@ public class InvestmentService : IInvestmentService
         if (string.IsNullOrWhiteSpace(filter.OwnerId))
             throw new ArgumentException("OwnerId é obrigatório.");
 
-        var investmentsTask = _repository.GetByOwnerIdAsync(filter);
-        var totalCountTask = _repository.CountByOwnerIdAsync(filter);
+        var investments = await _repository.GetByOwnerIdAsync(filter);
+        var totalCount = await _repository.CountByOwnerIdAsync(filter);
 
-        await Task.WhenAll(investmentsTask, totalCountTask);
-
-        var investments = investmentsTask.Result;
-        var totalCount = totalCountTask.Result;
         var items = new List<InvestmentDto>();
         foreach (var investment in investments)
         {
