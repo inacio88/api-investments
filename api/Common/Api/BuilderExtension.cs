@@ -1,3 +1,4 @@
+using System.Reflection;
 using application.Services;
 using core.Repositories;
 using core.Services;
@@ -5,6 +6,7 @@ using infra.Data;
 using infra.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace api.Common.Api
 {
@@ -19,19 +21,38 @@ namespace api.Common.Api
         public static void AddDocumentation(this WebApplicationBuilder builder)
         {
 
-            // builder.Services.AddEndpointsApiExplorer();
-            // builder.Services.AddSwaggerGen(x =>
-            // {
-            //     x.CustomSchemaIds(x => x.FullName);
-            // });
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.EnableAnnotations();
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Investment API",
+                    Description = "Web API for investments",
+                    TermsOfService = new Uri("https://example.com/terms"),
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Investment API Contact",
+                        Url = new Uri("https://example.com/contact")
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "Investment API License",
+                        Url = new Uri("https://example.com/license")
+                    }
+                });
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            });
 
-            
+
         }
 
         public static void AddSecurity(this WebApplicationBuilder builder)
         {
             builder.Services.AddIdentityApiEndpoints<IdentityUser>();
-                            //.AddEntityFrameworkStores<ApplicationDbContext>();
+            //.AddEntityFrameworkStores<ApplicationDbContext>();
 
             // builder.Services.Configure<IdentityOptions>(options =>
             // {
@@ -74,7 +95,7 @@ namespace api.Common.Api
         public static void AddServices(this WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
-            
+
             builder.Services.AddScoped<IInvestmentService, InvestmentService>();
             builder.Services.AddScoped<IGainCalculationService, GainCalculationService>();
             builder.Services.AddScoped<ITaxCalculationService, TaxCalculationService>();
