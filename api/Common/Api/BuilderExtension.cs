@@ -52,27 +52,7 @@ namespace api.Common.Api
         public static void AddSecurity(this WebApplicationBuilder builder)
         {
             builder.Services.AddIdentityApiEndpoints<IdentityUser>();
-            //.AddEntityFrameworkStores<ApplicationDbContext>();
-
-            // builder.Services.Configure<IdentityOptions>(options =>
-            // {
-            //     options.SignIn.RequireConfirmedEmail = true;
-            //     options.Lockout.MaxFailedAccessAttempts = 20;
-
-            // });
-
-            // builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
-            //                 .AddIdentityCookies();
-            // builder.Services.ConfigureApplicationCookie(options =>
-            // {
-            //     options.Cookie.Name = "Investment.AuthCookie";
-            //     options.Cookie.HttpOnly = true;
-            //     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            //     options.Cookie.SameSite = SameSiteMode.None;
-            //     options.Cookie.IsEssential = true;
-            //     options.ExpireTimeSpan = TimeSpan.FromDays(7);
-            //     options.SlidingExpiration = true;
-            // });
+            
 
             builder.Services.AddAuthorization();
         }
